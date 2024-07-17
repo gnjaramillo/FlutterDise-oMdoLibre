@@ -22,7 +22,7 @@ class _RegistrarseState extends State<Registrarse> {
        child: Form(
         key:_formKey,
         child: Column(
-          children: [Image.network("https://cdn-icons-png.flaticon.com/128/758/758669.png",
+          children: [Image.network("https://cdn-icons-png.flaticon.com/512/681/681494.png",
           width: 100,
           height: 100,
           ),
@@ -86,3 +86,6 @@ class _RegistrarseState extends State<Registrarse> {
   )
 ));
 }}
+
+
+

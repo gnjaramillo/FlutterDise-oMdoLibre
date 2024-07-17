@@ -2,9 +2,7 @@
 // ignore_for_file: file_names
 
 import 'package:flutter/material.dart';
-
 import 'package:mercado_pago_col/Menu.dart';
-
 
 class PaginaInicio extends StatelessWidget {
   const PaginaInicio({super.key});
@@ -13,7 +11,7 @@ class PaginaInicio extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue[700],
+        backgroundColor: Colors.brown[700],
         foregroundColor: Colors.white,
         title: Padding(
           padding: const EdgeInsets.only(top: 8.0),
@@ -29,8 +27,8 @@ class PaginaInicio extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
+                  backgroundColor: Colors.brown[100],
+                  foregroundColor: Colors.brown[800],
                 ),
                 child: const Text('Iniciar sesión'),
               )
@@ -54,18 +52,18 @@ class PaginaInicio extends StatelessWidget {
                         borderSide: BorderSide.none
                       ),
                       filled: true,
-                      fillColor: Colors.grey[200]
+                      fillColor: Colors.brown[50]
                     ),                       
                   ),        
                 ),
                 const SizedBox(width: 50),
                 IconButton(
                   onPressed: () {},
-                  icon: const Icon(Icons.favorite_border_rounded),color:Colors.black,
+                  icon: const Icon(Icons.favorite_border_rounded), color: Colors.brown[800],
                 ),
                 IconButton(
                   onPressed: () {},
-                  icon: const Icon(Icons.notifications_sharp),color:Colors.black,
+                  icon: const Icon(Icons.notifications_sharp), color: Colors.brown[800],
                 )
               ],
             ),
@@ -89,12 +87,12 @@ class PaginaInicio extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(menu[index]['icono'], color:Colors.black),
+                          Icon(menu[index]['icono'], color: Colors.brown[800]),
                           const SizedBox(width: 10),
                           Text(
                             menu[index]['titulo'],
                             textAlign: TextAlign.center,
-                            style:const TextStyle(fontSize: 12.0),
+                            style: const TextStyle(fontSize: 12.0, color: Color.fromRGBO(78, 52, 46, 1)),
                           )
                         ],
                       ),
@@ -109,14 +107,11 @@ class PaginaInicio extends StatelessWidget {
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
-               BottomNavigationBarItem(icon: Icon(Icons.home, size:30.0 ,color: Colors.blue[700]),label:'Inicio'),
-               BottomNavigationBarItem(icon: Icon(Icons.shop_2, size:30.0 ,color: Colors.blue[700]),label:'Comprar'),
-               BottomNavigationBarItem(icon: Icon(Icons.exit_to_app_rounded, size:30.0 ,color: Colors.blue[700]),label:'Salir')
+               BottomNavigationBarItem(icon: Icon(Icons.home, size: 30.0, color: Colors.brown[700]), label: 'Inicio'),
+               BottomNavigationBarItem(icon: Icon(Icons.shop_2, size: 30.0, color: Colors.brown[700]), label: 'Comprar'),
+               BottomNavigationBarItem(icon: Icon(Icons.exit_to_app_rounded, size: 30.0, color: Colors.brown[700]), label: 'Salir')
               ]
         )
       );
   }
-} 
-
-
-
+}

@@ -33,8 +33,8 @@ class _LoginState extends State<Login> {
             style: TextStyle(fontSize: 16.0, color: Color.fromRGBO(109, 76, 65, 1))),
             const SizedBox(height: 30),
             TextField(
-              decoration: InputDecoration(labelText: "Ingrese su correo", 
-              prefixIcon: const Icon(Icons.email_rounded, color: Color.fromRGBO(78, 52, 46, 1)),
+              decoration: InputDecoration(labelText: "Cedula de ciudadanía", 
+              prefixIcon: const Icon(Icons.perm_identity, color: Color.fromRGBO(78, 52, 46, 1)),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               filled: true,
               fillColor: Colors.brown[50]),

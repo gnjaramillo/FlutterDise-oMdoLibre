@@ -1,10 +1,10 @@
-// administracion_productos.dart
-
 import 'package:flutter/material.dart';
 import 'package:mercado_pago_col/src/screens/productos.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import 'package:image_picker/image_picker.dart'; // Asegúrate de agregar esta dependencia en pubspec.yaml
+import 'dart:typed_data'; // Para manejar datos en memoria (compatible con Flutter Web)
+import 'package:http_parser/http_parser.dart';
 
 class AdministracionProductos extends StatelessWidget {
   const AdministracionProductos({super.key});
@@ -14,41 +14,31 @@ class AdministracionProductos extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Administrar productos'),
-        backgroundColor: Colors.blue, // Puedes ajustar el color según tus preferencias
+        backgroundColor: Colors.blue,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             ListTile(
-              leading: Icon(Icons.list_alt),
-              title: Text('Productos'),
+              leading: const Icon(Icons.list_alt),
+              title: const Text('Productos'),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const PantallaProductos()),
+                  MaterialPageRoute(
+                      builder: (context) => const PantallaProductos()),
                 );
               },
             ),
             ListTile(
-              leading: Icon(Icons.add_box),
-              title: Text('Agregar Producto'),
+              leading: const Icon(Icons.add_box),
+              title: const Text('Agregar Producto'),
               onTap: () {
-                // Navegar a la pantalla de agregar producto
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const AgregarProducto()),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.delete),
-              title: Text('Eliminar Producto'),
-              onTap: () {
-                // Navegar a la pantalla de eliminar producto
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const EliminarProducto()),
+                  MaterialPageRoute(
+                      builder: (context) => const AgregarProducto()),
                 );
               },
             ),
@@ -58,8 +48,6 @@ class AdministracionProductos extends StatelessWidget {
     );
   }
 }
-
-
 
 class AgregarProducto extends StatefulWidget {
   const AgregarProducto({super.key});
@@ -74,36 +62,79 @@ class _AgregarProductoState extends State<AgregarProducto> {
   String _nombre = '';
   String _descripcion = '';
   double _precio = 0.0;
-  String _categoria = '';
+  String? _categoria;
   int _stockDisponible = 0;
+  Uint8List? _imagen; // Ahora es Uint8List para compatibilidad con Flutter Web
+  List<dynamic> _categorias = [];
 
-  Future<void> _agregarProducto() async {
-    final url = Uri.parse('http://localhost:3030/api/producto/');
-    final response = await http.post(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, dynamic>{
-        'codigo': _codigo,
-        'nombre': _nombre,
-        'descripcion': _descripcion,
-        'precio': _precio,
-        'categoria': _categoria,
-        'stockDisponible': _stockDisponible,
-      }),
-    );
+  @override
+  void initState() {
+    super.initState();
+    _fetchCategorias();
+  }
+
+  Future<void> _fetchCategorias() async {
+    final url = Uri.parse('https://nodeproyectofluttermdolibre.onrender.com/api/categoria/');
+    final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      // Si la solicitud fue exitosa, muestra un mensaje
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Producto agregado exitosamente')),
-      );
+      setState(() {
+        _categorias = jsonDecode(response.body)['data'];
+      });
     } else {
-      // Si la solicitud falló, muestra un mensaje
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al agregar producto')),
+        const SnackBar(content: Text('Error al cargar categorías')),
       );
+    }
+  }
+
+  Future<void> _agregarProducto() async {
+    final url = Uri.parse('https://nodeproyectofluttermdolibre.onrender.com/api/producto/');
+    final request = http.MultipartRequest('POST', url)
+      ..fields['codigo'] = _codigo
+      ..fields['nombre'] = _nombre
+      ..fields['descripcion'] = _descripcion
+      ..fields['precio'] = _precio.toString()
+      ..fields['categoria'] = _categoria!
+      ..fields['stockDisponible'] = _stockDisponible.toString();
+
+    if (_imagen != null) {
+      final imageFile = http.MultipartFile.fromBytes(
+        'foto',
+        _imagen!,
+        filename: 'imagen_producto.jpg',
+        contentType: MediaType('image', 'jpeg'),
+      );
+      request.files.add(imageFile);
+    }
+
+    final response = await request.send();
+
+    if (response.statusCode == 201) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Producto agregado exitosamente')),
+      );
+      _formKey.currentState?.reset();
+      setState(() {
+        _imagen = null;
+      });
+      Navigator.pop(context); // Regresar a la lista de productos
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error al agregar producto')),
+      );
+    }
+  }
+
+  Future<void> _seleccionarImagen() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      final bytes = await pickedFile.readAsBytes();  // Lee la imagen como bytes
+      setState(() {
+        _imagen = bytes;
+      });
     }
   }
 
@@ -121,7 +152,7 @@ class _AgregarProductoState extends State<AgregarProducto> {
           child: ListView(
             children: [
               TextFormField(
-                decoration: InputDecoration(labelText: 'Código'),
+                decoration: const InputDecoration(labelText: 'Código'),
                 onSaved: (value) {
                   _codigo = value!;
                 },
@@ -133,7 +164,7 @@ class _AgregarProductoState extends State<AgregarProducto> {
                 },
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Nombre'),
+                decoration: const InputDecoration(labelText: 'Nombre'),
                 onSaved: (value) {
                   _nombre = value!;
                 },
@@ -145,7 +176,7 @@ class _AgregarProductoState extends State<AgregarProducto> {
                 },
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Descripción'),
+                decoration: const InputDecoration(labelText: 'Descripción'),
                 onSaved: (value) {
                   _descripcion = value!;
                 },
@@ -157,7 +188,7 @@ class _AgregarProductoState extends State<AgregarProducto> {
                 },
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Precio'),
+                decoration: const InputDecoration(labelText: 'Precio'),
                 keyboardType: TextInputType.number,
                 onSaved: (value) {
                   _precio = double.parse(value!);
@@ -169,20 +200,29 @@ class _AgregarProductoState extends State<AgregarProducto> {
                   return null;
                 },
               ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Categoría'),
-                onSaved: (value) {
-                  _categoria = value!;
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(labelText: 'Categoría'),
+                value: _categoria,
+                items: _categorias.map((categoria) {
+                  return DropdownMenuItem<String>(
+                    value: categoria['_id'],
+                    child: Text(categoria['nombre']),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _categoria = value;
+                  });
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Por favor ingrese una categoría';
+                    return 'Por favor seleccione una categoría';
                   }
                   return null;
                 },
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Stock Disponible'),
+                decoration: const InputDecoration(labelText: 'Stock Disponible'),
                 keyboardType: TextInputType.number,
                 onSaved: (value) {
                   _stockDisponible = int.parse(value!);
@@ -195,6 +235,19 @@ class _AgregarProductoState extends State<AgregarProducto> {
                 },
               ),
               const SizedBox(height: 20),
+              _imagen != null
+                  ? Image.memory(
+                      _imagen!,
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    )
+                  : const Text('No se ha seleccionado ninguna imagen'),
+              TextButton(
+                onPressed: _seleccionarImagen,
+                child: const Text('Seleccionar Imagen'),
+              ),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
@@ -203,79 +256,6 @@ class _AgregarProductoState extends State<AgregarProducto> {
                   }
                 },
                 child: const Text('Agregar Producto'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-
-
-class EliminarProducto extends StatefulWidget {
-  const EliminarProducto({super.key});
-
-  @override
-  _EliminarProductoState createState() => _EliminarProductoState();
-}
-
-class _EliminarProductoState extends State<EliminarProducto> {
-  final _formKey = GlobalKey<FormState>();
-  String _productoId = '';
-
-  Future<void> _eliminarProducto() async {
-    final url = Uri.parse('http://localhost:3030/api/producto/$_productoId');
-    final response = await http.delete(url);
-
-    if (response.statusCode == 200) {
-      // Si la solicitud fue exitosa, muestra un mensaje
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Producto eliminado exitosamente')),
-      );
-    } else {
-      // Si la solicitud falló, muestra un mensaje
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al eliminar producto')),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Eliminar Producto'),
-        backgroundColor: Colors.blue,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                decoration: InputDecoration(labelText: 'ID del Producto'),
-                onSaved: (value) {
-                  _productoId = value!;
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingrese el ID del producto';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
-                    _eliminarProducto();
-                  }
-                },
-                child: const Text('Eliminar Producto'),
               ),
             ],
           ),

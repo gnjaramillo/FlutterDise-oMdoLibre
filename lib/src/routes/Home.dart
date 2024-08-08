@@ -47,6 +47,7 @@ import 'package:mercado_pago_col/src/screens/Login.dart';
 import 'package:mercado_pago_col/src/screens/Registro.dart';
 import 'package:mercado_pago_col/src/screens/administracionUsuarios.dart';
 import 'package:mercado_pago_col/src/screens/administracionProductos.dart';
+import 'package:mercado_pago_col/src/screens/administracionCategorias.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -66,6 +67,7 @@ class _HomeState extends State<Home> {
         '/registroUsuarios': (context) => const Registrarse(),
         '/administracionUsuarios': (context) => const AdministracionUsuarios(),
         '/administracionProductos': (context) => const AdministracionProductos(), // Agrega la nueva ruta
+        '/administracionCategorias': (context) => const AdministracionCategorias(), // Agrega la nueva ruta
       },
     );
   }

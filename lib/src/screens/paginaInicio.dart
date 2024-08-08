@@ -1,10 +1,7 @@
-
-
-
 // paginaInicio.dart
-
 import 'package:flutter/material.dart';
 import 'package:mercado_pago_col/Menu.dart';
+import 'productos.dart';
 
 class PaginaInicio extends StatelessWidget {
   const PaginaInicio({super.key});
@@ -35,6 +32,20 @@ class PaginaInicio extends StatelessWidget {
                       foregroundColor: Colors.brown[800],
                     ),
                     child: const Text('Admin Usuarios'),
+                  ),
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/administracionProductos');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      backgroundColor: Colors.brown[100],
+                      foregroundColor: Colors.brown[800],
+                    ),
+                    child: const Text('Admin Productos'),
                   ),
                   const SizedBox(width: 10),
                   ElevatedButton(
@@ -106,6 +117,11 @@ class PaginaInicio extends StatelessWidget {
                       onTap: () {
                         if (menu[index]['titulo'] == 'Usuarios') {
                           Navigator.pushNamed(context, '/administracionUsuarios');
+                        } else if (menu[index]['titulo'] == 'Hogar') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const PantallaProductos()),
+                          );
                         } else {
                           Navigator.pop(context);
                         }
@@ -155,7 +171,6 @@ class PaginaInicio extends StatelessWidget {
     );
   }
 }
-
 
 
 

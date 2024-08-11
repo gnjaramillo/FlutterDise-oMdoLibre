@@ -1,4 +1,6 @@
 // administracionCategorias.dart
+
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -28,6 +30,55 @@ class _AdministracionCategoriasState extends State<AdministracionCategorias> {
     } else {
       throw Exception('Failed to load categorias');
     }
+  }
+
+  Future<void> agregarCategoria() async {
+    final nombreController = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Agregar Categoría'),
+          content: TextField(
+            controller: nombreController,
+            decoration: InputDecoration(labelText: 'Nombre'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                final response = await http.post(
+                  Uri.parse('https://nodeproyectofluttermdolibre.onrender.com/api/categoria'),
+                  headers: <String, String>{
+                    'Content-Type': 'application/json; charset=UTF-8',
+                  },
+                  body: jsonEncode({'nombre': nombreController.text}),
+                );
+
+                print('Código de estado: ${response.statusCode}');
+                
+                if (response.statusCode == 201 || response.statusCode == 200) {  // Aceptar 200 o 201
+                  setState(() {
+                    _categoriasFuture = fetchCategorias();
+                  });
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Categoría agregada exitosamente')));
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al agregar categoría')));
+                }
+              },
+              child: Text('Guardar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> actualizarCategoria(dynamic categoria) async {
@@ -130,6 +181,14 @@ class _AdministracionCategoriasState extends State<AdministracionCategorias> {
             Navigator.pop(context);
           },
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              agregarCategoria();
+            },
+          ),
+        ],
       ),
       body: FutureBuilder<List<dynamic>>(
         future: _categoriasFuture,

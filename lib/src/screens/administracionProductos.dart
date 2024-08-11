@@ -1,8 +1,11 @@
+//admin productos
+
+
 import 'package:flutter/material.dart';
 import 'package:mercado_pago_col/src/screens/productos.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:image_picker/image_picker.dart'; // Asegúrate de agregar esta dependencia en pubspec.yaml
+import 'package:image_picker/image_picker.dart'; 
 import 'dart:typed_data'; // Para manejar datos en memoria (compatible con Flutter Web)
 import 'package:http_parser/http_parser.dart';
 
@@ -109,21 +112,42 @@ class _AgregarProductoState extends State<AgregarProducto> {
     }
 
     final response = await request.send();
+    final responseData = await response.stream.bytesToString();
 
-    if (response.statusCode == 201) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Producto agregado exitosamente')),
-      );
-      _formKey.currentState?.reset();
-      setState(() {
-        _imagen = null;
-      });
-      Navigator.pop(context); // Regresar a la lista de productos
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      _showSuccessDialog();
     } else {
+      print('Error response: $responseData'); // Imprimir la respuesta para debug
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error al agregar producto')),
       );
     }
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Éxito'),
+          content: const Text('Producto agregado exitosamente.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cerrar el diálogo
+                _formKey.currentState?.reset(); // Limpiar el formulario
+                setState(() {
+                  _imagen = null;
+                  _categoria = null;  // Limpiar la categoría seleccionada
+                });
+                Navigator.pop(context); // Regresar a la lista de productos
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _seleccionarImagen() async {

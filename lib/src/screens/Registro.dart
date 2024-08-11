@@ -1,4 +1,4 @@
-
+// registro.dart
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -23,7 +23,7 @@ class _RegistrarseState extends State<Registrarse> {
   Future<void> _registrarUsuario() async {
     if (_formKey.currentState!.validate()) {
       final response = await http.post(
-        Uri.parse('http://localhost:3030/api/auth/register'),
+        Uri.parse('https://nodeproyectofluttermdolibre.onrender.com/api/auth/register'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'nombre': _nombreController.text,
@@ -35,17 +35,33 @@ class _RegistrarseState extends State<Registrarse> {
         }),
       );
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        // Registro exitoso
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Registro exitoso')),
+          const SnackBar(content: Text('Registro exitoso')),
         );
-        Navigator.pushNamed(context, '/inicioSesion');
+        // Limpiar el formulario
+        _limpiarFormulario();
+        // Navegar a la página de inicio de sesión después de limpiar el formulario
+        Future.delayed(Duration(milliseconds: 500), () {
+          Navigator.pushNamed(context, '/inicioSesion');
+        });
       } else {
+        // Error en el registro
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al registrar el usuario: ${response.body}')),
         );
       }
     }
+  }
+
+  void _limpiarFormulario() {
+    _nombreController.clear();
+    _cedulaController.clear();
+    _correoController.clear();
+    _telefonoController.clear();
+    _direccionController.clear();
+    _passwordController.clear();
   }
 
   @override
@@ -67,7 +83,11 @@ class _RegistrarseState extends State<Registrarse> {
                   const SizedBox(height: 10),
                   const Text(
                     "REGISTRO DE USUARIO",
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color.fromRGBO(78, 52, 46, 1)),
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromRGBO(78, 52, 46, 1),
+                    ),
                   ),
                   const SizedBox(height: 20),
                   TextFormField(
@@ -79,17 +99,29 @@ class _RegistrarseState extends State<Registrarse> {
                       filled: true,
                       fillColor: Colors.brown[50],
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor ingrese su nombre completo';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 20),
                   TextFormField(
                     controller: _cedulaController,
                     decoration: InputDecoration(
-                      labelText: "Ingrese su cedula de ciudadania",
+                      labelText: "Ingrese su cédula de ciudadanía",
                       prefixIcon: const Icon(Icons.perm_identity, color: Color.fromRGBO(78, 52, 46, 1)),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                       filled: true,
                       fillColor: Colors.brown[50],
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor ingrese su cédula';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 20),
                   TextFormField(
@@ -101,6 +133,12 @@ class _RegistrarseState extends State<Registrarse> {
                       filled: true,
                       fillColor: Colors.brown[50],
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor ingrese su correo electrónico';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 20),
                   TextFormField(
@@ -112,6 +150,12 @@ class _RegistrarseState extends State<Registrarse> {
                       filled: true,
                       fillColor: Colors.brown[50],
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor ingrese su número de teléfono';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 20),
                   TextFormField(
@@ -123,6 +167,12 @@ class _RegistrarseState extends State<Registrarse> {
                       filled: true,
                       fillColor: Colors.brown[50],
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor ingrese su dirección';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 20),
                   TextFormField(
@@ -135,6 +185,12 @@ class _RegistrarseState extends State<Registrarse> {
                       filled: true,
                       fillColor: Colors.brown[50],
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor ingrese su contraseña';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 30.0),
                   SizedBox(
@@ -156,7 +212,7 @@ class _RegistrarseState extends State<Registrarse> {
                       Navigator.pushNamed(context, '/inicioSesion');
                     },
                     child: const Text(
-                      '¿Ya tienes una cuenta? Inicia Sesion',
+                      '¿Ya tienes una cuenta? Inicia Sesión',
                       style: TextStyle(color: Color.fromRGBO(78, 52, 46, 1)),
                     ),
                   )
